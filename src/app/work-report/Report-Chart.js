@@ -18,6 +18,26 @@ import {
 } from "@/components/ui/chart"
 import { Button } from "@/components/ui/button"
 
+const CustomTooltip = ({ active, payload, label, chartConfig }) => {
+  if (!active || !payload || payload.length === 0) return null;
+  // console.log(payload)
+  return (
+    <div className="bg-white p-3 shadow-md rounded-lg border border-gray-200">
+      <p className="text-sm font-semibold text-gray-700">{label}</p>
+      {payload.map((entry, index) => (
+        <div key={index} className="flex items-center gap-2">
+          <span
+            className="inline-block w-3 h-3 rounded-full"
+            style={{ backgroundColor: entry.color }}
+          />
+          <span className="text-sm text-gray-900">
+            {chartConfig[entry.dataKey]?.label || entry.name}: {entry.value}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 export default function ReportChart(data) {
   const [selected, setSelected] = useState("Month")
@@ -54,14 +74,14 @@ export default function ReportChart(data) {
           <BarChart data={data.chartData}>
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="month"
+              dataKey={data.mainKey}
               tickLine={false}
               tickMargin={10}
-              axisLine={true}
-              tickFormatter={(value) => value.slice(0, 3)}
+              axisLine={true} 
+              tickFormatter={(value) => "Test "+value}
             />
             <YAxis axisLine={true} />
-            <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dashed" />} />
+            <ChartTooltip cursor={false} content={(props)=><CustomTooltip {...props} chartConfig={chartConfig}/>} />
             {
               data.dataKeys.map((key) => {
                 return <Bar onClick={(data)=>console.log(data)} key={key.key} dataKey={key.key} fill={key.color} radius={4} />
