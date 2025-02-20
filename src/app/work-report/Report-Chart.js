@@ -18,30 +18,19 @@ import {
 } from "@/components/ui/chart"
 import { Button } from "@/components/ui/button"
 
-const chartData = [
-  { month: "Saturday", desktop: 186, mobile: 80 },
-  { month: "Sunday", desktop: 305, mobile: 200 },
-  { month: "Monday", desktop: 237, mobile: 120 },
-  { month: "Tuesday", desktop: 73, mobile: 190 },
-  { month: "Wednesday", desktop: 209, mobile: 130 },
-  { month: "Thursday", desktop: 214, mobile: 140 },
-  { month: "Friday", desktop: 214, mobile: 140 },
-]
 
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "hsl(var(--chart-1))",
-  },
-  mobile: {
-    label: "Mobile",
-    color: "hsl(var(--chart-2))",
-  },
-}
-
-export default function ReportChart() {
+export default function ReportChart(data) {
   const [selected, setSelected] = useState("Month")
+  console.log(data)
 
+  let chartConfig = {
+  }
+  
+  data.dataKeys.map((key) =>{
+    chartConfig[key.key] = {
+      label:key.label,
+    }
+  })
   return (
     <Card>
       <CardHeader className="flex flex-col items-center gap-4">
@@ -62,7 +51,7 @@ export default function ReportChart() {
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <BarChart data={chartData}>
+          <BarChart data={data.chartData}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="month"
@@ -73,8 +62,11 @@ export default function ReportChart() {
             />
             <YAxis axisLine={true} />
             <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dashed" />} />
-            <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-            <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+            {
+              data.dataKeys.map((key) => {
+                return <Bar onClick={(data)=>console.log(data)} key={key.key} dataKey={key.key} fill={key.color} radius={4} />
+              })
+            }
           </BarChart>
         </ChartContainer>
       </CardContent>
