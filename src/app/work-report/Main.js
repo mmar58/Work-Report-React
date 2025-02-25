@@ -9,7 +9,7 @@ import {
   } from "@/components/ui/resizable"
 import ReportChart from "./Report-Chart";
 import TimeReport from "./time-report/time-report-main";
-import { format, addDays, subDays } from "date-fns";
+import { format, addDays, subDays,subWeeks, startOfWeek } from "date-fns";
 // Data Variables
 let chartData = [
     { day: "Saturday", desktop: 186, mobile: 80 },
@@ -25,7 +25,7 @@ let mainKey="day"
 export default function Main(){
     let dataUrl="http://192.168.0.2:88/"
     const [endDate, setEndDate] = useState(new Date());
-    const [startDate, setStartDate] = useState(subDays(endDate, 6));
+    const [startDate, setStartDate] = useState(startOfWeek(endDate, { weekStartsOn: 1 }));
     
     const changeWeek = (direction) => {
         if (direction === "prev") {
@@ -40,13 +40,13 @@ export default function Main(){
     const fetchWorkData=() => {
         // Fetch work data for the current week
         console.log(`${dataUrl}work-data?startDate=${format(startDate, "yyyy-MM-dd")}&endDate=${format(endDate, "yyyy-MM-dd")}`)
-        fetch(`${dataUrl}work-data?startDate=${format(startDate, "yyyy-MM-dd")}&endDate=${format(endDate, "yyyy-MM-dd")}`)
+        fetch(`${dataUrl}work-data?startDate=${format(startDate, "yyyy-MM-dd")}&endDate=${format(addDays(endDate,1), "yyyy-MM-dd")}`)
         .then((response) => response.json()).then(data=>console.log(data))
     }
     fetchWorkData()
     return (
         <div>
-            <Header startDate={startDate} endDate={endDate} changeWeek={changeWeek} />
+            <Header startDate={startDate} endDate={endDate} changeWeek={changeWeek} syncFunction={fetchWorkData} />
             <ResizablePanelGroup direction="horizontal">
                 <ResizablePanel defaultSize={24}>
                     <FloatingReport />
