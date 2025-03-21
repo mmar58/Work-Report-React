@@ -1,9 +1,11 @@
 import TimeReportComponent from "./time-report-component";
 
-export default function TimeReport(){
+export default function TimeReport({curweekData,prevweekData}){
     return (
         <div>
-            <TimeReportComponent />
+            {curweekData&&curweekData.slice().reverse().map((entry,index) => {
+                return <TimeReportComponent key={index} date={entry.date}/>
+            })}
         </div>
     )
 }

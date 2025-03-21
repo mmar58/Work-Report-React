@@ -90,6 +90,7 @@ export default function Main() {
       fetch(`${dataUrl}work-data?startDate=${formattedPrevStartDate}&endDate=${formattedPrevEndDate}`).then(res => res.json())
     ]).then(([curData, prevData]) => {
       // Calculating total cur week working time
+      console.log("Cur Data:",curData)
       let totalMinutes = 0, totalHours = 0;
       curData.forEach(entry => {
         totalHours += entry.hour
@@ -185,7 +186,7 @@ export default function Main() {
         </ResizablePanel>
         <ResizableHandle />
         <ResizablePanel defaultSize={20}>
-          <TimeReport />
+          <TimeReport curweekData={curWeekData} prevweekData={prevWeekData} />
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>

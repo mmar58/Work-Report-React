@@ -1,10 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function TimeReportComponent() {
+export default function TimeReportComponent({date,data}) {
     return (
-        <Card className="p-2"> {/* Reduced overall padding */}
-            <CardHeader className="pb-1"> {/* Reduced padding bottom */}
-                <CardTitle className="text-lg font-semibold">TuesDay</CardTitle>
+        <Card className="p-0"> {/* Reduced overall padding */}
+            <CardHeader className="pb-0"> {/* Reduced padding bottom */}
+                <CardTitle className="text-lg font-semibold">{date}</CardTitle>
             </CardHeader>
             <CardContent>
                 <PerLineComponent />
