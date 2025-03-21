@@ -78,7 +78,7 @@ export default function ReportChart(data) {
               tickLine={false}
               tickMargin={10}
               axisLine={true} 
-              tickFormatter={(value) => "Test "+value}
+              tickFormatter={(value) => value}
             />
             <YAxis axisLine={true} />
             <ChartTooltip cursor={false} content={(props)=><CustomTooltip {...props} chartConfig={chartConfig}/>} />
