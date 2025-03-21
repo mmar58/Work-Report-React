@@ -3,9 +3,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-
-export default function FloatingReport() {
+export default function FloatingReport({totalWorkingHour,totalWorkingMinute, totalIncome, totalIncomeInDollar}) {
   const [dollarRate, setDollarRate] = useState(120);
+
   const workDetails = {
     description: "Worked on fixing journey creator issues",
     dateRange: "02.10.25 - 02.16.25",
@@ -33,13 +33,13 @@ export default function FloatingReport() {
             <strong>Short Desc:</strong> {workDetails.description}
           </p>
           <p className="text-gray-600">
-            <strong>Total:</strong> {workDetails.totalTime}
+            <strong>Total:</strong> {totalWorkingHour>0?totalWorkingHour+" hours":"0 hours"} {totalWorkingMinute>0?totalWorkingMinute+" minutes":""}
           </p>
           <p className="text-gray-600">
-            <strong>BDT:</strong> {workDetails.amountBDT.toFixed(2)}
+            <strong>BDT:</strong> {totalIncome}
           </p>
           <p className="text-gray-600">
-            <strong>USD (from Google):</strong> {workDetails.amountUSD.toFixed(2)}
+            <strong>USD (from Google):</strong> {totalIncomeInDollar}
           </p>
         </CardContent>
       </Card>
