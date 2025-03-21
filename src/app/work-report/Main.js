@@ -33,7 +33,7 @@ export default function Main() {
   const [totalIncomeInDollar, setTotalIncomeInDollar] = useState(0)
   const [hourlyRate, setHourlyRate] = useState(0)
   const [dollarRate, setDollarRate] = useState(0)
-  
+  const [direction, setDirection] = useState("horizontal");
 
 
   // Chart legend & data keys
@@ -118,6 +118,21 @@ export default function Main() {
     return processedData;
   }
 
+   // Function to check screen width & height and update direction
+   const updateDirection = () => {
+    if (window.innerWidth < window.innerHeight) {
+      setDirection("vertical"); // Use vertical stacking when width < height
+    } else {
+      setDirection("horizontal"); // Use horizontal layout for wider screens
+    }
+  };
+
+  useEffect(() => {
+    updateDirection(); // Check initial state
+    window.addEventListener("resize", updateDirection); // Listen for changes
+    return () => window.removeEventListener("resize", updateDirection); // Cleanup
+  }, []);
+
   /**
    * Updates chart data only after both current and previous week data are available.
    */
@@ -174,18 +189,45 @@ export default function Main() {
   }
   ,[])
   return (
-    <div>
-      <Header startDate={startDate} endDate={endDate} changeWeek={changeWeek} syncFunction={fetchWorkData} />
-      <ResizablePanelGroup direction="horizontal">
-        <ResizablePanel defaultSize={24}>
-          <FloatingReport totalWorkingHour={totalHours} totalWorkingMinute={totalMinutes} totalIncome={totalIncome} totalIncomeInDollar={totalIncomeInDollar} />
+    <div className="h-screen flex flex-col">
+      {/* Header */}
+      <Header startDate={startDate} endDate={endDate} changeWeek={fetchWorkData} syncFunction={fetchWorkData} />
+
+      {/* Responsive Layout: Uses flex-column for mobile, horizontal for larger screens */}
+      <ResizablePanelGroup 
+        direction={direction} 
+        className="flex flex-col lg:flex-row w-full h-full"
+      >
+        {/* Floating Report Panel (Left on Desktop, Top on Mobile) */}
+        <ResizablePanel 
+          defaultSize={24} 
+          className="w-full lg:w-1/4 overflow-y-auto p-2"
+        >
+          <FloatingReport 
+            totalWorkingHour={totalHours} 
+            totalWorkingMinute={totalMinutes} 
+            totalIncome={totalIncome} 
+            totalIncomeInDollar={totalIncomeInDollar} 
+          />
         </ResizablePanel>
+
         <ResizableHandle />
-        <ResizablePanel defaultSize={56}>
-          <ReportChart chartData={chartData} dataKeys={dataKeys} mainKey={mainKey} />
+
+        {/* Report Chart Panel (Center on Desktop, Middle on Mobile) */}
+        <ResizablePanel 
+          defaultSize={56} 
+          className="w-full lg:w-1/2 overflow-y-auto p-2"
+        >
+          <ReportChart chartData={chartData} dataKeys={dataKeys} mainKey="day" />
         </ResizablePanel>
+
         <ResizableHandle />
-        <ResizablePanel defaultSize={20}>
+
+        {/* Time Report Panel (Right on Desktop, Bottom on Mobile) */}
+        <ResizablePanel 
+          defaultSize={20} 
+          className="w-full lg:w-1/4 overflow-y-auto p-2"
+        >
           <TimeReport curweekData={curWeekData} prevweekData={prevWeekData} />
         </ResizablePanel>
       </ResizablePanelGroup>
