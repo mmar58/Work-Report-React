@@ -10,7 +10,7 @@ import {
 import ReportChart from "./Report-Chart";
 import TimeReport from "./time-report/time-report-main";
 import { format, addDays, subWeeks, startOfWeek, endOfWeek, isBefore, isSameDay } from "date-fns";
-
+import WorkGoalTracker from "./WorkGoalTracker";
 let mainKey = "day"; // Key used for the chart
 export default function Main() {
   let dataUrl = "http://192.168.0.2:88/"; // API base URL
@@ -192,7 +192,7 @@ export default function Main() {
     <div className="h-screen flex flex-col">
       {/* Header */}
       <Header startDate={startDate} endDate={endDate} changeWeek={fetchWorkData} syncFunction={fetchWorkData} />
-
+      
       {/* Responsive Layout: Uses flex-column for mobile, horizontal for larger screens */}
       <ResizablePanelGroup 
         direction={direction} 
@@ -228,7 +228,15 @@ export default function Main() {
           defaultSize={20} 
           className="w-full lg:w-1/4 overflow-y-auto p-2"
         >
-          <TimeReport curweekData={curWeekData} prevweekData={prevWeekData} />
+          <ResizablePanelGroup direction={direction== "horizontal" ? "vertical" : "horizontal"}>
+            <ResizablePanel defaultSize={direction=="horizontal"?40:30}>
+              <WorkGoalTracker workedHours={totalHours} workedMinutes={totalMinutes}/>
+            </ResizablePanel>
+            <ResizablePanel>
+              <TimeReport curweekData={curWeekData} prevweekData={prevWeekData} />
+            </ResizablePanel>
+          </ResizablePanelGroup>
+          
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>
