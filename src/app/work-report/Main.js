@@ -191,7 +191,7 @@ export default function Main() {
   return (
     <div className="h-screen flex flex-col">
       {/* Header */}
-      <Header startDate={startDate} endDate={endDate} changeWeek={fetchWorkData} syncFunction={fetchWorkData} />
+      <Header startDate={startDate} endDate={endDate} changeWeek={changeWeek} syncFunction={fetchWorkData} />
       
       {/* Responsive Layout: Uses flex-column for mobile, horizontal for larger screens */}
       <ResizablePanelGroup 

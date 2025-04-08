@@ -11,10 +11,8 @@ const getTodayIndex = () => {
 };
 
 const WorkGoalTracker = ({ workedHours, workedMinutes }) => {
-  const [targetHours, setTargetHours] = useState(() => {
-    const stored = localStorage.getItem('targetHours');
-    return stored ? Number(stored) : 40;
-  });
+  const apiLink="http://192.168.0.2:88/"
+  const [targetHours, setTargetHours] = useState(40);
 
   const [totalWorked, setTotalWorked] = useState(0);
   const [percentageReached, setPercentageReached] = useState(0);
@@ -23,9 +21,8 @@ const WorkGoalTracker = ({ workedHours, workedMinutes }) => {
   const [hoursPerRemainingDay, setHoursPerRemainingDay] = useState(0);
 
   useEffect(() => {
-    localStorage.setItem('targetHours', targetHours);
+    // fetch(apiLink+"setTargetHours?hours="+targetHours)
   }, [targetHours]);
-
   useEffect(() => {
     const workedTotal = workedHours + workedMinutes / 60;
     const todayIndex = getTodayIndex();
@@ -33,7 +30,7 @@ const WorkGoalTracker = ({ workedHours, workedMinutes }) => {
     const remainingHrs = Math.max(0, targetHours - workedTotal);
     const percentage = ((workedTotal / targetHours) * 100).toFixed(1);
     const dailyTarget = remaining > 0 ? (remainingHrs / remaining).toFixed(2) : 0;
-
+    fetch(apiLink+"getTargetHours").then(res=>res.text()).then(hours=>{let curHour=parseInt(hours);console.log(curHour);if(curHour!=targetHours) setTargetHours(curHour)})
     setTotalWorked(workedTotal);
     setPercentageReached(Number(percentage));
     setRemainingDays(remaining);
@@ -53,7 +50,10 @@ const WorkGoalTracker = ({ workedHours, workedMinutes }) => {
                 id="targetHours"
                 type="number"
                 value={targetHours}
-                onChange={e => setTargetHours(Number(e.target.value))}
+                onChange={e => {
+                  setTargetHours(Number(e.target.value));
+                  fetch(apiLink+"setTargetHours?hours="+e.target.value)
+                }}
                 className="w-16 h-7 px-2 text-xs"
               />
             </div>
