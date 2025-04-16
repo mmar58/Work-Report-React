@@ -9,12 +9,12 @@ import {
 } from "@/components/ui/resizable";
 import ReportChart from "./Report-Chart";
 import TimeReport from "./time-report/time-report-main";
-import { format, addDays, subWeeks, startOfWeek, endOfWeek, isBefore, isSameDay } from "date-fns";
+import { format, addDays, subWeeks, startOfWeek, endOfWeek, isBefore, isSameDay, isWithinInterval, startOfDay, subDays } from "date-fns";
 import WorkGoalTracker from "./WorkGoalTracker";
 let mainKey = "day"; // Key used for the chart
 export default function Main() {
   let dataUrl = "http://192.168.0.2:88/"; // API base URL
-  
+
   // Get last Monday and Sunday as the initial date range
   const today = new Date();
   const lastMonday = startOfWeek(today, { weekStartsOn: 1 });
@@ -84,25 +84,119 @@ export default function Main() {
     const formattedPrevStartDate = format(prevWeekDate.newStartDate, "yyyy-MM-dd");
     const formattedPrevEndDate = format(prevWeekDate.newEndDate, "yyyy-MM-dd");
 
+    const isTodayInCurrentWeek = isWithinInterval(startOfDay(today), {
+      start: startOfDay(startDate),
+      end: startOfDay(endDate),
+    });
+    const todaysFormatDate = format(today, "yyyy-MM-dd");
+
+    let curWeekRequest = `${dataUrl}work-data?startDate=${formattedCurStartDate}&endDate=${formattedCurEndDate}`
+    console.log(curWeekRequest,Date.now())
     // Fetch current and previous week data in parallel
     Promise.all([
-      fetch(`${dataUrl}work-data?startDate=${formattedCurStartDate}&endDate=${formattedCurEndDate}`).then(res => res.json()),
+      fetch(curWeekRequest).then(res => res.json()),
       fetch(`${dataUrl}work-data?startDate=${formattedPrevStartDate}&endDate=${formattedPrevEndDate}`).then(res => res.json())
     ]).then(([curData, prevData]) => {
       // Calculating total cur week working time
-      console.log("Cur Data:",curData)
+      console.log("Cur Data:", curData)
       let totalMinutes = 0, totalHours = 0;
+      let hasTodayData = false;
       curData.forEach(entry => {
         totalHours += entry.hour
         totalMinutes += entry.minutes + entry.extraminutes
-        totalHours+=Math.floor(totalMinutes/60)
-        totalMinutes%=60
+        totalHours += Math.floor(totalMinutes / 60)
+        totalMinutes %= 60
+        // Checking if we have today's data in the current week
+        if (isTodayInCurrentWeek && !hasTodayData) {
+          if (entry.date == todaysFormatDate) hasTodayData = true;
+        }
       });
-      setTotalHours(totalHours)
-      setTotalMinutes(totalMinutes)
-      // Updating week data
-      setCurWeekData(curData);
-      setPrevWeekData(prevData);
+      if (isTodayInCurrentWeek) {
+        if (hasTodayData) {
+          fetch(dataUrl + "worktime").then(res => res.json()).then(data => {
+            for (let i = 0; i < data.length; i++) {
+              let dateData = data[i].date.split("-")
+              data[i].date = dateData[2] + "-" + dateData[1] + "-" + dateData[0]
+              let dateDataFound = false;
+              for (let j = 0; j < curData.length; j++) {
+                if (curData[j].date == data[i].date) {
+                  curData[j].hour = data[i].hours
+                  curData[j].minutes = data[i].minutes
+                  curData[j].seconds = data[i].seconds
+                  dateDataFound = true;
+                  console.log("Date data found for " + data[i].date, Date.now)
+                  break;
+                }
+                
+              }
+              if (!dateDataFound) {
+                console.log("Date data not found for " + data[i].date, Date.now)
+                curData.push(data[i])
+              }
+            }
+            // Recalculating total time
+            totalMinutes = 0, totalHours = 0;
+            curData.forEach(entry => {
+              totalHours += entry.hour
+              totalMinutes += entry.minutes + entry.extraminutes
+              totalHours += Math.floor(totalMinutes / 60)
+              totalMinutes %= 60
+            });
+            console.log("Updated cur data:", curData, Date.now())
+            setTotalHours(totalHours)
+            setTotalMinutes(totalMinutes)
+            // Updating week data
+            setCurWeekData(curData);
+            setPrevWeekData(prevData);
+          })
+        } else {
+          fetch(dataUrl + "worktime?dates=" + format(subDays(today, 1), "dd-MM-yyyy") + "," + format(today, "dd-MM-yyyy")).then(res => res.json()).then(data => {
+            console.log("Work Time:", data, Date.now())
+            for (let i = 0; i < data.length; i++) {
+              let dateData = data[i].date.split("-")
+              data[i].date = dateData[2] + "-" + dateData[1] + "-" + dateData[0]
+              let dateDataFound = false;
+              for (let j = 0; j < curData.length; j++) {
+                if (curData[j].date == data[i].date) {
+                  curData[j].hour = data[i].hour
+                  curData[j].minutes = data[i].minutes
+                  curData[j].seconds = data[i].seconds
+                  dateDataFound = true;
+                  console.log("Date data found for " + data[i].date, Date.now)
+                  break;
+                }
+                
+              }
+              if (!dateDataFound) {
+                console.log("Date data not found for " + data[i].date, Date.now)
+                curData.push(data[i])
+              }
+            }
+            // Recalculating total time
+            totalMinutes = 0, totalHours = 0;
+            curData.forEach(entry => {
+              totalHours += entry.hour
+              totalMinutes += entry.minutes + entry.extraminutes
+              totalHours += Math.floor(totalMinutes / 60)
+              totalMinutes %= 60
+            });
+            console.log("Updated cur data:", curData, Date.now())
+            setTotalHours(totalHours)
+            setTotalMinutes(totalMinutes)
+            // Updating week data
+            setCurWeekData(curData);
+            setPrevWeekData(prevData);
+          })
+        }
+
+      } else {
+        setTotalHours(totalHours)
+        setTotalMinutes(totalMinutes)
+        // Updating week data
+        setCurWeekData(curData);
+        setPrevWeekData(prevData);
+      }
+
     }).catch(error => console.error("Error fetching data:", error));
   }
 
@@ -118,8 +212,8 @@ export default function Main() {
     return processedData;
   }
 
-   // Function to check screen width & height and update direction
-   const updateDirection = () => {
+  // Function to check screen width & height and update direction
+  const updateDirection = () => {
     if (window.innerWidth < window.innerHeight) {
       setDirection("vertical"); // Use vertical stacking when width < height
     } else {
@@ -177,45 +271,45 @@ export default function Main() {
   }, [startDate]);
 
   useEffect(() => {
-    setTotalIncome(totalHours*hourlyRate+totalMinutes*hourlyRate/60)
-  },[hourlyRate,totalHours,totalMinutes])
+    setTotalIncome(totalHours * hourlyRate + totalMinutes * hourlyRate / 60)
+  }, [hourlyRate, totalHours, totalMinutes])
   useEffect(() => {
-    setTotalIncomeInDollar(totalIncome/dollarRate)
-  },[totalIncome])
+    setTotalIncomeInDollar(totalIncome / dollarRate)
+  }, [totalIncome])
 
   useEffect(() => {
-    fetch(`${dataUrl}hourlyRate`).then(res => res.text()).then(data => {setHourlyRate(parseFloat(data));console.log(hourlyRate);})
-    fetch("http://www.geoplugin.net/json.gp?ip=103.205.134.44").then(result=>{ return result.json()}).then(json=>{setDollarRate(json["geoplugin_currencyConverter"])});
+    fetch(`${dataUrl}hourlyRate`).then(res => res.text()).then(data => { setHourlyRate(parseFloat(data)); console.log(hourlyRate); })
+    fetch("http://www.geoplugin.net/json.gp?ip=103.205.134.44").then(result => { return result.json() }).then(json => { setDollarRate(json["geoplugin_currencyConverter"]) });
   }
-  ,[])
+    , [])
   return (
     <div className="h-screen flex flex-col">
       {/* Header */}
       <Header startDate={startDate} endDate={endDate} changeWeek={changeWeek} syncFunction={fetchWorkData} />
-      
+
       {/* Responsive Layout: Uses flex-column for mobile, horizontal for larger screens */}
-      <ResizablePanelGroup 
-        direction={direction} 
+      <ResizablePanelGroup
+        direction={direction}
         className="flex flex-col lg:flex-row w-full h-full"
       >
         {/* Floating Report Panel (Left on Desktop, Top on Mobile) */}
-        <ResizablePanel 
-          defaultSize={24} 
+        <ResizablePanel
+          defaultSize={24}
           className="w-full lg:w-1/4 overflow-y-auto p-2"
         >
-          <FloatingReport 
-            totalWorkingHour={totalHours} 
-            totalWorkingMinute={totalMinutes} 
-            totalIncome={totalIncome} 
-            totalIncomeInDollar={totalIncomeInDollar} 
+          <FloatingReport
+            totalWorkingHour={totalHours}
+            totalWorkingMinute={totalMinutes}
+            totalIncome={totalIncome}
+            totalIncomeInDollar={totalIncomeInDollar}
           />
         </ResizablePanel>
 
         <ResizableHandle />
 
         {/* Report Chart Panel (Center on Desktop, Middle on Mobile) */}
-        <ResizablePanel 
-          defaultSize={56} 
+        <ResizablePanel
+          defaultSize={56}
           className="w-full lg:w-1/2 overflow-y-auto p-2"
         >
           <ReportChart chartData={chartData} dataKeys={dataKeys} mainKey="day" />
@@ -224,19 +318,19 @@ export default function Main() {
         <ResizableHandle />
 
         {/* Time Report Panel (Right on Desktop, Bottom on Mobile) */}
-        <ResizablePanel 
-          defaultSize={20} 
+        <ResizablePanel
+          defaultSize={20}
           className="w-full lg:w-1/4 overflow-y-auto p-2"
         >
-          <ResizablePanelGroup direction={direction== "horizontal" ? "vertical" : "horizontal"}>
-            <ResizablePanel defaultSize={direction=="horizontal"?40:30}>
-              <WorkGoalTracker workedHours={totalHours} workedMinutes={totalMinutes}/>
+          <ResizablePanelGroup direction={direction == "horizontal" ? "vertical" : "horizontal"}>
+            <ResizablePanel defaultSize={direction == "horizontal" ? 40 : 30}>
+              <WorkGoalTracker workedHours={totalHours} workedMinutes={totalMinutes} />
             </ResizablePanel>
             <ResizablePanel>
               <TimeReport curweekData={curWeekData} prevweekData={prevWeekData} />
             </ResizablePanel>
           </ResizablePanelGroup>
-          
+
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>
