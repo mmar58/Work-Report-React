@@ -102,7 +102,7 @@ export default function Main() {
       let totalMinutes = 0, totalHours = 0;
       let hasTodayData = false;
       curData.forEach(entry => {
-        totalHours += entry.hour
+        totalHours += entry.hours
         totalMinutes += entry.minutes + entry.extraminutes
         totalHours += Math.floor(totalMinutes / 60)
         totalMinutes %= 60
@@ -120,7 +120,7 @@ export default function Main() {
               let dateDataFound = false;
               for (let j = 0; j < curData.length; j++) {
                 if (curData[j].date == data[i].date) {
-                  curData[j].hour = data[i].hours
+                  curData[j].hours = data[i].hours
                   curData[j].minutes = data[i].minutes
                   curData[j].seconds = data[i].seconds
                   dateDataFound = true;
@@ -137,7 +137,7 @@ export default function Main() {
             // Recalculating total time
             totalMinutes = 0, totalHours = 0;
             curData.forEach(entry => {
-              totalHours += entry.hour
+              totalHours += entry.hours
               totalMinutes += entry.minutes + entry.extraminutes
               totalHours += Math.floor(totalMinutes / 60)
               totalMinutes %= 60
@@ -158,7 +158,7 @@ export default function Main() {
               let dateDataFound = false;
               for (let j = 0; j < curData.length; j++) {
                 if (curData[j].date == data[i].date) {
-                  curData[j].hour = data[i].hour
+                  curData[j].hours = data[i].hours
                   curData[j].minutes = data[i].minutes
                   curData[j].seconds = data[i].seconds
                   dateDataFound = true;
@@ -175,7 +175,7 @@ export default function Main() {
             // Recalculating total time
             totalMinutes = 0, totalHours = 0;
             curData.forEach(entry => {
-              totalHours += entry.hour
+              totalHours += entry.hours
               totalMinutes += entry.minutes + entry.extraminutes
               totalHours += Math.floor(totalMinutes / 60)
               totalMinutes %= 60
