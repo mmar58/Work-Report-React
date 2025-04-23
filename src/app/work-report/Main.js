@@ -207,7 +207,7 @@ export default function Main() {
     let processedData = {};
     data.forEach(entry => {
       let dayName = format(new Date(entry.date), "EEEE");
-      processedData[dayName] = entry.hour + (entry.minutes + entry.extraminutes) / 60;
+      processedData[dayName] = entry.hours + (entry.minutes + entry.extraminutes) / 60;
     });
     return processedData;
   }
