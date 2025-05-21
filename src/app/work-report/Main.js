@@ -12,9 +12,10 @@ import TimeReport from "./time-report/time-report-main";
 import { format, addDays, subWeeks, startOfWeek, endOfWeek, isBefore, isSameDay, isWithinInterval, startOfDay, subDays } from "date-fns";
 import WorkGoalTracker from "./WorkGoalTracker";
 let mainKey = "day"; // Key used for the chart
+let lastFetchedTime = 0;
+
 export default function Main() {
   let dataUrl = "http://192.168.0.2:88/"; // API base URL
-
   // Get last Monday and Sunday as the initial date range
   const today = new Date();
   const lastMonday = startOfWeek(today, { weekStartsOn: 1 });
@@ -61,7 +62,6 @@ export default function Main() {
         setEndDate(newEndDate > today ? today : newEndDate);
       }
     }
-    fetchWorkData();
   };
 
   /**
@@ -78,6 +78,8 @@ export default function Main() {
    * Uses `Promise.all` to fetch them in parallel.
    */
   function fetchWorkData() {
+    lastFetchedTime = Date.now();
+    console.log(startDate, endDate,Date.now())
     const formattedCurStartDate = format(startDate, "yyyy-MM-dd");
     const formattedCurEndDate = format(endDate, "yyyy-MM-dd");
     const prevWeekDate = getPrevWeek();
@@ -92,13 +94,18 @@ export default function Main() {
 
     let curWeekRequest = `${dataUrl}work-data?startDate=${formattedCurStartDate}&endDate=${formattedCurEndDate}`
     console.log(curWeekRequest,Date.now())
+    console.trace()
     // Fetch current and previous week data in parallel
     Promise.all([
       fetch(curWeekRequest).then(res => res.json()),
       fetch(`${dataUrl}work-data?startDate=${formattedPrevStartDate}&endDate=${formattedPrevEndDate}`).then(res => res.json())
     ]).then(([curData, prevData]) => {
       // Calculating total cur week working time
+      console.group("feteched data",Date.now())
       console.log("Cur Data:", curData)
+      console.log("Prev Data:", prevData)
+      console.trace()
+      console.groupEnd()
       let totalMinutes = 0, totalHours = 0;
       let hasTodayData = false;
       curData.forEach(entry => {
@@ -254,12 +261,17 @@ export default function Main() {
       setChartData(newChartData);
     }
   }, [curWeekData, prevWeekData]);
-
+  useEffect(() => {
+    fetchWorkData();
+  },[startDate,endDate])
   /**
    * Fetches work data when the component mounts or when the startDate changes.
    */
   useEffect(() => {
-    fetchWorkData();
+    if(Date.now() - lastFetchedTime>100){
+      console.log("Fetching data",Date.now(),lastFetchedTime,Date.now() - lastFetchedTime)
+      fetchWorkData();
+    }
 
     // Set up interval to refresh data every 5 minutes (300,000 milliseconds)
     const intervalId = setInterval(() => {

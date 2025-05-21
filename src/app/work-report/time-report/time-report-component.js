@@ -29,13 +29,16 @@ function parseWorkData(rawData) {
 function getTotalDuration(data) {
     let totalSeconds = 0
     for (const session of data) {
-        const parts = session.duration.split(":").map(Number)
-        const [h, m, s] = parts.length === 3
-            ? parts
-            : parts.length === 2
-                ? [0, ...parts]
-                : [0, 0, 0]
-        totalSeconds += h * 3600 + m * 60 + s
+        // console.log(session)
+        if(session.startTime!=""){
+            const parts = session.duration.split(":").map(Number)
+            const [h, m, s] = parts.length === 3
+                ? parts
+                : parts.length === 2
+                    ? [0, ...parts]
+                    : [0, 0, 0]
+            totalSeconds += h * 3600 + m * 60 + s
+        }
     }
     const h = Math.floor(totalSeconds / 3600)
     const m = Math.floor((totalSeconds % 3600) / 60)
