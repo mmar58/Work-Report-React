@@ -4,14 +4,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
+let apiLink = "http://"+window.location.hostname+":88/"
 const getTodayIndex = () => {
   const today = getDay(new Date()); // Sunday = 0
   return today === 0 ? 6 : today - 1; // Make Monday index 0
 };
 
 const WorkGoalTracker = ({ workedHours, workedMinutes }) => {
-  const apiLink="http://192.168.0.2:88/"
   const [targetHours, setTargetHours] = useState(40);
 
   const [totalWorked, setTotalWorked] = useState(0);
