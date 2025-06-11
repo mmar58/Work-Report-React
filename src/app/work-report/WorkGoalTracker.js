@@ -4,7 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-let apiLink = "http://"+window.location.hostname+":88/"
 const getTodayIndex = () => {
   const today = getDay(new Date()); // Sunday = 0
   return today === 0 ? 6 : today - 1; // Make Monday index 0
@@ -12,7 +11,7 @@ const getTodayIndex = () => {
 
 const WorkGoalTracker = ({ workedHours, workedMinutes }) => {
   const [targetHours, setTargetHours] = useState(40);
-
+  const [apiLink, setApiLink] = useState("")
   const [totalWorked, setTotalWorked] = useState(0);
   const [percentageReached, setPercentageReached] = useState(0);
   const [remainingDays, setRemainingDays] = useState(0);
@@ -20,8 +19,8 @@ const WorkGoalTracker = ({ workedHours, workedMinutes }) => {
   const [hoursPerRemainingDay, setHoursPerRemainingDay] = useState(0);
 
   useEffect(() => {
-    // fetch(apiLink+"setTargetHours?hours="+targetHours)
-  }, [targetHours]);
+    setApiLink("http://"+window.location.hostname+":88/")
+  }, []);
   useEffect(() => {
     const workedTotal = workedHours + workedMinutes / 60;
     const todayIndex = getTodayIndex();

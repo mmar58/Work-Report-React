@@ -30,7 +30,7 @@ function getTotalDuration(data) {
     let totalSeconds = 0
     for (const session of data) {
         // console.log(session)
-        if(session.startTime!=""){
+        if (session.startTime != "") {
             const parts = session.duration.split(":").map(Number)
             const [h, m, s] = parts.length === 3
                 ? parts
@@ -54,13 +54,15 @@ export default function TimeReportComponent({ date, data }) {
             <CardHeader className="pb-2 flex items-center gap-2">
                 <CardTitle className="text-base font-semibold text-gray-800">
                     {formatDateLabel(date)}
+                    <div className="text-xs text-right font-semibold text-gray-800 border-t pt-2 mt-2">
+                        Total: {total}
+                    </div>
                 </CardTitle>
+
             </CardHeader>
             <CardContent className="space-y-3 pt-0">
                 <PerLineComponent data={workSessions} />
-                <div className="text-xs text-right font-semibold text-gray-800 border-t pt-2 mt-2">
-                    Total: {total}
-                </div>
+
             </CardContent>
         </Card>
     )

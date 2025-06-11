@@ -15,7 +15,6 @@ let mainKey = "day"; // Key used for the chart
 let lastFetchedTime = 0;
 
 export default function Main() {
-  let dataUrl = "http://192.168.0.2:88/"; // API base URL
   // Get last Monday and Sunday as the initial date range
   const today = new Date();
   const lastMonday = startOfWeek(today, { weekStartsOn: 1 });
@@ -79,6 +78,7 @@ export default function Main() {
    */
   function fetchWorkData() {
     lastFetchedTime = Date.now();
+    let dataUrl = "http://"+window.location.hostname+":88/"
     console.log(startDate, endDate,Date.now())
     const formattedCurStartDate = format(startDate, "yyyy-MM-dd");
     const formattedCurEndDate = format(endDate, "yyyy-MM-dd");
@@ -290,7 +290,7 @@ export default function Main() {
   }, [totalIncome])
 
   useEffect(() => {
-    fetch(`${dataUrl}hourlyRate`).then(res => res.text()).then(data => { setHourlyRate(parseFloat(data)); console.log(hourlyRate); })
+    fetch(`${"http://"+window.location.hostname+":88/"}hourlyRate`).then(res => res.text()).then(data => { setHourlyRate(parseFloat(data)); console.log(hourlyRate); })
     fetch("http://www.geoplugin.net/json.gp?ip=103.205.134.44").then(result => { return result.json() }).then(json => { setDollarRate(json["geoplugin_currencyConverter"]) });
   }
     , [])
