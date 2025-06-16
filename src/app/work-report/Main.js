@@ -27,6 +27,7 @@ export default function Main() {
   const [curWeekData, setCurWeekData] = useState(null);
   const [prevWeekData, setPrevWeekData] = useState(null);
   // Work data
+  const [todaysWorkedHour, setTodaysWorkedHour] = useState(0);
   const [totalHours, setTotalHours] = useState(0)
   const [totalMinutes, setTotalMinutes] = useState(0)
   const [totalIncome, setTotalIncome] = useState(0)
@@ -125,11 +126,16 @@ export default function Main() {
               let dateData = data[i].date.split("-")
               data[i].date = dateData[2] + "-" + dateData[1] + "-" + dateData[0]
               let dateDataFound = false;
+
               for (let j = 0; j < curData.length; j++) {
                 if (curData[j].date == data[i].date) {
                   curData[j].hours = data[i].hours
                   curData[j].minutes = data[i].minutes
                   curData[j].seconds = data[i].seconds
+                  // Setting today's worked hours
+                  if(curData[j].date == todaysFormatDate){
+                    setTodaysWorkedHour(curData[j].hours+(curData[j].minutes+curData[j].extraminutes+curData[j].seconds/60)/60)
+                  }
                   dateDataFound = true;
                   console.log("Date data found for " + data[i].date, Date.now)
                   break;
@@ -168,6 +174,10 @@ export default function Main() {
                   curData[j].hours = data[i].hours
                   curData[j].minutes = data[i].minutes
                   curData[j].seconds = data[i].seconds
+                  // Setting today's worked hours
+                  if(curData[j].date == todaysFormatDate){
+                    setTodaysWorkedHour(curData[j].hours+(curData[j].minutes+curData[j].extraminutes+curData[j].seconds/60)/60)
+                  }
                   dateDataFound = true;
                   console.log("Date data found for " + data[i].date, Date.now)
                   break;
@@ -336,7 +346,7 @@ export default function Main() {
         >
           <ResizablePanelGroup direction={direction == "horizontal" ? "vertical" : "horizontal"}>
             <ResizablePanel defaultSize={direction == "horizontal" ? 40 : 30}>
-              <WorkGoalTracker workedHours={totalHours} workedMinutes={totalMinutes} />
+              <WorkGoalTracker workedHours={totalHours} workedMinutes={totalMinutes} todaysWorkedHours={todaysWorkedHour} />
             </ResizablePanel>
             <ResizablePanel>
               <TimeReport curweekData={curWeekData} prevweekData={prevWeekData} />

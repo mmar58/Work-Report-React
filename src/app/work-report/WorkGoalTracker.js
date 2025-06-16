@@ -9,7 +9,7 @@ const getTodayIndex = () => {
   return today === 0 ? 6 : today - 1; // Make Monday index 0
 };
 
-const WorkGoalTracker = ({ workedHours, workedMinutes }) => {
+const WorkGoalTracker = ({ workedHours, workedMinutes,todaysWorkedHours }) => {
   const [targetHours, setTargetHours] = useState(40);
   const [apiLink, setApiLink] = useState("")
   const [totalWorked, setTotalWorked] = useState(0);
@@ -25,7 +25,7 @@ const WorkGoalTracker = ({ workedHours, workedMinutes }) => {
     const workedTotal = workedHours + workedMinutes / 60;
     const todayIndex = getTodayIndex();
     const remaining = 7 - todayIndex;
-    const remainingHrs = Math.max(0, targetHours - workedTotal);
+    const remainingHrs = Math.max(0, targetHours - workedTotal)+todaysWorkedHours;
     const percentage = ((workedTotal / targetHours) * 100).toFixed(1);
     const dailyTarget = remaining > 0 ? (remainingHrs / remaining).toFixed(2) : 0;
     fetch(apiLink+"getTargetHours").then(res=>res.text()).then(hours=>{let curHour=parseInt(hours);console.log(curHour);if(curHour!=targetHours) setTargetHours(curHour)})
