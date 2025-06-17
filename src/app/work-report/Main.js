@@ -297,7 +297,7 @@ export default function Main() {
   }, [hourlyRate, totalHours, totalMinutes])
   useEffect(() => {
     setTotalIncomeInDollar(totalIncome / dollarRate)
-  }, [totalIncome])
+  }, [totalIncome,dollarRate])
 
   useEffect(() => {
     fetch(`${"http://"+window.location.hostname+":88/"}hourlyRate`).then(res => res.text()).then(data => { setHourlyRate(parseFloat(data)); console.log(hourlyRate); })

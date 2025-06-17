@@ -11,7 +11,7 @@ const getTodayIndex = () => {
 
 const WorkGoalTracker = ({ workedHours, workedMinutes,todaysWorkedHours }) => {
   const [targetHours, setTargetHours] = useState(40);
-  const [apiLink, setApiLink] = useState("")
+  const [apiLink, setApiLink] = useState("http://localhost:88/")
   const [totalWorked, setTotalWorked] = useState(0);
   const [percentageReached, setPercentageReached] = useState(0);
   const [remainingDays, setRemainingDays] = useState(0);
