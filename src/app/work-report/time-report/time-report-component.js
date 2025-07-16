@@ -26,28 +26,17 @@ function parseWorkData(rawData) {
 }
 
 // Helper to sum durations in "h:mm:ss" or "m:ss"
-function getTotalDuration(data) {
-    let totalSeconds = 0
-    for (const session of data) {
-        // console.log(session)
-        if (session.startTime != "") {
-            const parts = session.duration.split(":").map(Number)
-            const [h, m, s] = parts.length === 3
-                ? parts
-                : parts.length === 2
-                    ? [0, ...parts]
-                    : [0, 0, 0]
-            totalSeconds += h * 3600 + m * 60 + s
-        }
-    }
-    const h = Math.floor(totalSeconds / 3600)
-    const m = Math.floor((totalSeconds % 3600) / 60)
+function getTotalDuration(hours,minutes,extraMinutes) {
+    let totalMinutes = minutes + extraMinutes;
+    let curHours = Math.floor(hours + (totalMinutes)/60);
+    const h = curHours
+    const m = totalMinutes%60
     return `${h}h ${m}m`
 }
 
-export default function TimeReportComponent({ date, data }) {
+export default function TimeReportComponent({ date, data,hours,minutes,extraMinutes }) {
     const workSessions = parseWorkData(data)
-    const total = getTotalDuration(workSessions)
+    const total = getTotalDuration(hours,minutes,extraMinutes)
 
     return (
         <Card className="mb-4 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 rounded-2xl">

@@ -9,13 +9,11 @@ const getTodayIndex = () => {
   return today === 0 ? 6 : today - 1; // Make Monday index 0
 };
 
-const WorkGoalTracker = ({ workedHours, workedMinutes,todaysWorkedHours }) => {
+const WorkGoalTracker = ({ workedHours, workedMinutes,todaysWorkedHours,previousWorkedHours }) => {
   const [targetHours, setTargetHours] = useState(40);
   const [apiLink, setApiLink] = useState("http://localhost:88/")
-  const [totalWorked, setTotalWorked] = useState(0);
   const [percentageReached, setPercentageReached] = useState(0);
   const [remainingDays, setRemainingDays] = useState(0);
-  const [remainingHours, setRemainingHours] = useState(0);
   const [hoursPerRemainingDay, setHoursPerRemainingDay] = useState(0);
 
   useEffect(() => {
@@ -29,10 +27,8 @@ const WorkGoalTracker = ({ workedHours, workedMinutes,todaysWorkedHours }) => {
     const percentage = ((workedTotal / targetHours) * 100).toFixed(1);
     const dailyTarget = remaining > 0 ? (remainingHrs / remaining).toFixed(2) : 0;
     fetch(apiLink+"getTargetHours").then(res=>res.text()).then(hours=>{let curHour=parseInt(hours);console.log(curHour);if(curHour!=targetHours) setTargetHours(curHour)})
-    setTotalWorked(workedTotal);
     setPercentageReached(Number(percentage));
     setRemainingDays(remaining);
-    setRemainingHours(remainingHrs);
     setHoursPerRemainingDay(dailyTarget);
   }, [workedHours, workedMinutes, targetHours]);
 
@@ -66,6 +62,7 @@ const WorkGoalTracker = ({ workedHours, workedMinutes,todaysWorkedHours }) => {
             <p><strong>Worked:</strong> {workedHours}h {workedMinutes}m</p>
             <p><strong>Remain/Day:</strong> {hoursPerRemainingDay}h</p>
             <p><strong>Days Left:</strong> {remainingDays}</p>
+            <p><strong>Previous Worked Hours:</strong> {previousWorkedHours?previousWorkedHours.hours+"h "+previousWorkedHours.minutes+"m":""}</p>
           </div>
         </CardContent>
       </Card>
