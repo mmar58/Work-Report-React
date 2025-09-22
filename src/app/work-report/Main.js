@@ -172,6 +172,8 @@ export default function Main() {
               totalIncomeInDollar={totalIncomeInDollar}
               dollarRate={dollarRate}
               isLoading={isLoading}
+              startDate={startDate}
+              endDate={endDate}
             />
           </ResizablePanel>
 
