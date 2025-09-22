@@ -63,15 +63,40 @@ class ApiService {
 
   // Currency API
   async getCurrencyRate(ip = null) {
+    const localStorageKey = 'currencyRate';
+    const localStorageTimeKey = 'currencyRateLastFetch';
+    const now = Date.now();
+    let cachedRate = null;
+    let lastFetch = null;
+    try {
+      cachedRate = localStorage.getItem(localStorageKey);
+      lastFetch = localStorage.getItem(localStorageTimeKey);
+    } catch (e) {
+      // localStorage may not be available in some environments
+    }
+    const oneHour = 60 * 60 * 1000;
+    if (cachedRate && lastFetch && (now - parseInt(lastFetch, 10) < oneHour)) {
+      return parseFloat(cachedRate);
+    }
+    // Fetch from API if not cached or cache is stale
     const url = ip ? `${config.CURRENCY_API_URL}?ip=${ip}` : config.CURRENCY_API_URL;
     const response = await fetch(url);
-    
     if (!response.ok) {
+      console.error('Failed to fetch currency data:', response.statusText, url);
+      if(cachedRate) {
+        return parseFloat(cachedRate); // return stale cache if available
+      }
       throw new Error('Failed to fetch currency data');
     }
-    
     const data = await response.json();
-    return data.geoplugin_currencyConverter;
+    const rate = parseFloat(data.rates.BDT);
+    try {
+      localStorage.setItem(localStorageKey, rate);
+      localStorage.setItem(localStorageTimeKey, now.toString());
+    } catch (e) {
+      // localStorage may not be available in some environments
+    }
+    return rate;
   }
 }
 
